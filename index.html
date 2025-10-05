@@ -1,4 +1,4 @@
-<!-- แบบสอบถามสำหรับหวานใจ 💕 เวอร์ชันแก้ไขแล้ว -->
+<!-- แบบสอบถามสำหรับหวานใจ 💕 เวอร์ชันแก้แล้ว (ส่งเข้า Google Sheet ได้) -->
 <!doctype html>
 <html lang="th">
 <head>
@@ -120,16 +120,48 @@ function update(){
 }
 prevBtn.onclick=()=>{if(current>0){current--;update();}};
 nextBtn.onclick=()=>{if(current<QUESTIONS.length-1){current++;update();}else submitAnswers();};
+
+// ✅ ฟังก์ชันใหม่ ใช้ FormData
 function submitAnswers(){
-  if(!answers[QUESTIONS.length-1]){alert('ตอบข้อสุดท้ายก่อนนะงับ 💕');current=QUESTIONS.length-1;update();return;}
-  const payload={questions:QUESTIONS,answers:answers};
-  if(!GSHEET_WEBHOOK.includes('http')){alert('ยังไม่ได้ตั้งค่า Google Sheets URL\nนี่คือคำตอบ:\n'+answers.join('\n'));return;}
-  nextBtn.disabled=true;nextBtn.textContent='กำลังส่ง...';
-  fetch(GSHEET_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(r=>r.json()).then(j=>{if(j.status==='ok'){qCard.innerHTML='<h2>💖 ขอบคุณนะ คำตอบถูกส่งแล้ว!</h2>';progressBar.style.width='100%';}else throw new Error();})
-    .catch(()=>{alert('ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');nextBtn.disabled=false;nextBtn.textContent='ส่ง';});
+  if(!answers[QUESTIONS.length-1]){
+    alert('ตอบข้อสุดท้ายก่อนนะงับ 💕');
+    current=QUESTIONS.length-1;update();
+    return;
+  }
+  const payload = {questions: QUESTIONS, answers: answers};
+  if(!GSHEET_WEBHOOK.includes('http')){
+    alert('ยังไม่ได้ตั้งค่า Google Sheets URL\nนี่คือคำตอบ:\n'+answers.join('\n'));
+    return;
+  }
+
+  nextBtn.disabled = true;
+  nextBtn.textContent = 'กำลังส่ง...';
+
+  const formData = new FormData();
+  formData.append("data", JSON.stringify(payload));
+
+  fetch(GSHEET_WEBHOOK, {
+    method: 'POST',
+    body: formData
+  })
+  .then(r => r.json())
+  .then(j => {
+    if(j.status === 'ok'){
+      qCard.innerHTML = '<h2>💖 ขอบคุณนะ คำตอบถูกส่งแล้ว!</h2>';
+      progressBar.style.width = '100%';
+    } else {
+      throw new Error();
+    }
+  })
+  .catch(()=>{
+    alert('ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');
+    nextBtn.disabled = false;
+    nextBtn.textContent = 'ส่ง';
+  });
 }
+
 update();
+
 // ดอกไม้ตก
 function createFlower(){
   const f=document.createElement('div');f.className='flower';
@@ -139,6 +171,7 @@ function createFlower(){
   setTimeout(()=>f.remove(),13000);
 }
 setInterval(createFlower,400);
+
 // ระบบเสียง
 const overlay=document.getElementById('overlay');
 const startBtn=document.getElementById('startBtn');
