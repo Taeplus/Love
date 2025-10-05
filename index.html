@@ -1,0 +1,152 @@
+<!-- แบบสอบถามสำหรับหวานใจ 💕 เวอร์ชันแก้ไขแล้ว -->
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>แบบสอบถามสำหรับหวานใจ 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#fff0f6;--card:#fff;--accent:#ff8fb1;--accent-2:#ffd6e8;--text:#3b2b2b;}
+  *{box-sizing:border-box}
+  body{font-family:'Nunito',sans-serif;margin:0;background:linear-gradient(180deg,var(--bg),#fff);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden;}
+  .app{width:100%;max-width:720px;position:relative;z-index:2;}
+  .header{display:flex;align-items:center;gap:16px}
+  .logo{width:76px;height:76px;border-radius:18px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:28px;box-shadow:0 8px 24px rgba(255,140,177,0.18)}
+  h1{margin:0;font-size:20px}
+  p.lead{margin:4px 0 18px;color:#6b4b59}
+  .card{background:var(--card);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(99,40,67,0.08);position:relative;overflow:hidden}
+  .question-card{min-height:180px;display:flex;flex-direction:column;gap:12px}
+  .q-number{font-weight:800;color:var(--accent)}
+  .q-text{font-size:18px}
+  textarea{resize:none;border-radius:10px;border:1px solid #ffd6e8;padding:10px;font-family:'Nunito';font-size:15px;min-height:100px;outline:none;transition:0.2s}
+  textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,143,177,0.15)}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .choice{padding:14px;border-radius:12px;border:1px dashed rgba(0,0,0,0.06);cursor:pointer;font-weight:600;background:linear-gradient(180deg,transparent,rgba(255,182,193,0.03))}
+  .choice.selected{background:linear-gradient(90deg,#ffe8f0,#fff);border:2px solid rgba(255,143,177,0.22);box-shadow:0 6px 18px rgba(255,143,177,0.08)}
+  .controls{display:flex;gap:10px;align-items:center;margin-top:14px}
+  .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:none;cursor:pointer;font-weight:700;box-shadow:0 8px 20px rgba(255,143,177,0.15)}
+  .btn.ghost{background:transparent;color:var(--accent);border:1px solid rgba(255,143,177,0.12);box-shadow:none}
+  .progress-wrap{height:10px;background:#fff;border-radius:99px;overflow:hidden;flex:1}
+  .progress{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#ffb3d1)}
+  .flowers{position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+  .flower{position:absolute;width:24px;height:24px;background-image:radial-gradient(circle at 50% 40%,#fff,#ffd6e8 40%);border-radius:50%;opacity:0.9;animation:fall linear infinite;}
+  @keyframes fall {to {transform:translateY(110vh) rotate(360deg);opacity:0;}}
+  .overlay{position:fixed;inset:0;background:rgba(255,240,248,0.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:30}
+  .play-prompt{background:var(--card);padding:22px;border-radius:14px;box-shadow:0 12px 36px rgba(99,40,67,0.12);text-align:center}
+  .heart{font-size:36px;margin-bottom:8px}
+  footer{margin-top:12px;text-align:center;color:#8b6a75;font-size:13px}
+</style>
+</head>
+<body>
+<div class="flowers" id="flowers"></div>
+<div class="app">
+  <div class="header">
+    <div class="logo">💕</div>
+    <div>
+      <h1>แบบสอบถามสำหรับหวานใจ 💕</h1>
+      <p class="lead">ตอบคำถามทีละข้อนะไม่ต้องรีบ มีเสียงเพลงเพราะๆให้ฟัง</p>
+    </div>
+  </div>
+  <div class="card" id="mainCard">
+    <div class="question-card" id="questionCard"></div>
+    <div class="controls">
+      <button class="btn ghost" id="prevBtn">ย้อนกลับ</button>
+      <div class="progress-wrap"><div class="progress" id="progressBar"></div></div>
+      <button class="btn" id="nextBtn">ถัดไป</button>
+    </div>
+  </div>
+  <footer>💌 คำตอบของเธอจะถูกเก็บไว้ให้เค้าอ่าน</footer>
+</div>
+<audio id="bgAudio1" src="First Anuwat Fingerstyle Guitar Cover TAB.mp3" loop preload="auto"></audio>
+<div class="overlay" id="overlay">
+  <div class="play-prompt">
+    <div class="heart">💓</div>
+    <div>แตะเพื่อเริ่มเพลงและเริ่มแบบสอบถาม</div>
+    <div style="margin-top:12px"><button class="btn" id="startBtn">เริ่ม</button></div>
+  </div>
+</div>
+<script>
+const GSHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxk2OBNjntRxeVsdGDIz8tTJ1pV8pPA_nQkwKNT9Y2Po3N3Xnz8EQXfVHgXCaPdWc8/exec';
+const QUESTIONS = [
+  '1. เธอจำครั้งแรกที่เราเจอกันได้ไหม?',
+  '2. ตอนนั้นรู้สึกยังไงกับเค้า?',
+  '3. อะไรคือสิ่งแรกที่ทำให้เธอชอบเค้า?',
+  '4. ถ้าให้เธออธิบายเค้าด้วยคำ 3 คำ จะว่าไง?',
+  '5. สิ่งเล็กๆ ที่เค้าทำแล้วเธอยิ้มคืออะไร?',
+  '6. ถ้ามีเวลา 1 วัน อยากใช้มันกับเค้ายังไง?',
+  '7. เพลงไหนที่ทำให้เธอนึกถึงเค้า?',
+  '8. ถ้าต้องเลือกไปเที่ยวที่ไหนกับเค้า อยากไปที่ไหน?',
+  '9. เธอคิดว่าเค้าน่ารักตอนไหนที่สุด?',
+  '10. ช่วงเวลาที่อยู่ด้วยกันที่เธอชอบที่สุดคือเมื่อไหร่?',
+  '11. เธออยากให้เค้าทำอะไรให้บ่อยกว่านี้?',
+  '12. ถ้ามีโอกาส อยากให้เค้าเปลี่ยนอะไรไหม?',
+  '13. คำพูดหรือข้อความไหนจากเค้าที่ทำให้เธอใจเต้น?',
+  '14. เธอคิดว่าเราเข้ากันได้ดีด้านไหน?',
+  '15. ถ้าเค้าหายไปหนึ่งวัน เธอจะคิดถึงเรามั้ย?',
+  '16. เธออยากให้เค้าบอกรักเธอไปนานแค่ไหน?',
+  '17. เป็นแฟนกันไหม?'
+];
+let current=0;let answers=new Array(QUESTIONS.length).fill('');
+const qCard=document.getElementById('questionCard');
+const prevBtn=document.getElementById('prevBtn');
+const nextBtn=document.getElementById('nextBtn');
+const progressBar=document.getElementById('progressBar');
+function renderQuestion(i){
+  qCard.innerHTML='';
+  const qn=document.createElement('div');qn.className='q-number';qn.textContent=`คำถามที่ ${i+1} / ${QUESTIONS.length}`;
+  const qt=document.createElement('div');qt.className='q-text';qt.textContent=QUESTIONS[i];
+  qCard.append(qn,qt);
+  if(i===QUESTIONS.length-1){
+    const choicesWrap=document.createElement('div');choicesWrap.className='choices';
+    ['เป็น','เป็น'].forEach(c=>{
+      const d=document.createElement('div');d.className='choice';d.textContent=c;
+      if(answers[i]===c)d.classList.add('selected');
+      d.onclick=()=>{answers[i]=c;choicesWrap.querySelectorAll('.choice').forEach(e=>e.classList.remove('selected'));d.classList.add('selected');};
+      choicesWrap.appendChild(d);
+    });
+    qCard.appendChild(choicesWrap);
+  }else{
+    const ta=document.createElement('textarea');ta.placeholder='พิมพ์คำตอบของเธอตรงนี้...';ta.value=answers[i]||'';
+    ta.oninput=()=>answers[i]=ta.value;
+    qCard.appendChild(ta);
+  }
+}
+function update(){
+  renderQuestion(current);
+  progressBar.style.width=`${(current/(QUESTIONS.length-1))*100}%`;
+  prevBtn.style.display=current===0?'none':'inline-block';
+  nextBtn.textContent=current===QUESTIONS.length-1?'ส่ง':'ถัดไป';
+}
+prevBtn.onclick=()=>{if(current>0){current--;update();}};
+nextBtn.onclick=()=>{if(current<QUESTIONS.length-1){current++;update();}else submitAnswers();};
+function submitAnswers(){
+  if(!answers[QUESTIONS.length-1]){alert('ตอบข้อสุดท้ายก่อนนะงับ 💕');current=QUESTIONS.length-1;update();return;}
+  const payload={questions:QUESTIONS,answers:answers};
+  if(!GSHEET_WEBHOOK.includes('http')){alert('ยังไม่ได้ตั้งค่า Google Sheets URL\nนี่คือคำตอบ:\n'+answers.join('\n'));return;}
+  nextBtn.disabled=true;nextBtn.textContent='กำลังส่ง...';
+  fetch(GSHEET_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>r.json()).then(j=>{if(j.status==='ok'){qCard.innerHTML='<h2>💖 ขอบคุณนะ คำตอบถูกส่งแล้ว!</h2>';progressBar.style.width='100%';}else throw new Error();})
+    .catch(()=>{alert('ส่งไม่สำเร็จ ลองใหม่อีกครั้ง');nextBtn.disabled=false;nextBtn.textContent='ส่ง';});
+}
+update();
+// ดอกไม้ตก
+function createFlower(){
+  const f=document.createElement('div');f.className='flower';
+  f.style.left=Math.random()*100+'vw';
+  f.style.animationDuration=(8+Math.random()*5)+'s';
+  document.getElementById('flowers').appendChild(f);
+  setTimeout(()=>f.remove(),13000);
+}
+setInterval(createFlower,400);
+// ระบบเสียง
+const overlay=document.getElementById('overlay');
+const startBtn=document.getElementById('startBtn');
+const bg1=document.getElementById('bgAudio1');
+startBtn.onclick=()=>{
+  overlay.style.display='none';
+  bg1.play().catch(()=>{});
+};
+</script>
+</body>
+</html>
