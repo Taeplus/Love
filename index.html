@@ -147,7 +147,7 @@ function submitAnswers(){
   .then(r => r.json())
   .then(j => {
     if(j.status === 'ok'){
-      qCard.innerHTML = '<h2>💖 ขอบคุณนะ คำตอบถูกส่งแล้ว!</h2>';
+      qCard.innerHTML = '<h2>💖 ขอบคุณนะ เค้ารักเธอที่สุดในโลกเลย!</h2>';
       progressBar.style.width = '100%';
     } else {
       throw new Error();
@@ -183,5 +183,6 @@ startBtn.onclick=()=>{
 </script>
 </body>
 </html>
+
 
 
